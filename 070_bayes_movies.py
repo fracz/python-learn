@@ -45,6 +45,7 @@ def load_rating_data_csv(data_path):
 # data, movie_n_rating, movie_id_mapping = load_rating_data_csv('data/ml-latest-small/ratings.csv')
 data, movie_n_rating, movie_id_mapping = load_rating_data_dat('data/ml-1m/ratings.dat', 6040, 3883)
 
+print("Liczba filmów: ", len(movie_id_mapping))
 
 def display_distribution(data):
     values, counts = np.unique(data, return_counts=True)
@@ -57,3 +58,22 @@ display_distribution(data)
 movie_id_most, n_rating_most = sorted(movie_n_rating.items(), key=lambda movie: movie[1], reverse=True)[0]
 # movie_id_most_mapped = list(movie_id_mapping.keys())[list(movie_id_mapping.values()).index(movie_id_most)]
 print(f"Film o ID {movie_id_most} uzyskał najwięcej ocen: {n_rating_most}.")
+
+movie_index = movie_id_mapping[movie_id_most]
+
+X_raw = np.delete(data, movie_index, axis=1)
+Y_raw = data[:, movie_index]
+
+X = X_raw[Y_raw > 0]
+Y = Y_raw[Y_raw > 0]
+print("Kształt X: ", X.shape)
+print("Kształt Y: ", Y.shape)
+
+display_distribution(Y)
+
+recommend_level = 3
+Y[Y <= recommend_level] = 0
+Y[Y > recommend_level] = 1
+n_pos = (Y == 1).sum()
+n_neg = (Y == 0).sum()
+print("Pozytywnych próbek: %d, negatywnych próbek: %d" % (n_pos, n_neg))
